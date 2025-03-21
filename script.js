@@ -82,7 +82,7 @@ function getLearnerData(course, ag, submissions) {
         if (isAssignmentInCourse) {
             console.log("Assignment group belongs to this course!")
             let learners = getLearnersData(ag, submissions);
-            console.log(JSON.stringify(learners,0, 2));
+            console.log(JSON.stringify(learners, 0, 2));
             // console.log(checkDueSubmittedDate(ag, submissions), learners);
 
         }
@@ -96,35 +96,35 @@ function getLearnerData(course, ag, submissions) {
 
 }
 
-function checkAgInCourse(course, ag) {
+function checkAgInCourse(course, ag) { //Checks if the assignment group belongs to the course
     return course.id == ag.course_id
 }
-function getLearnersData(ag, submissions) {
-    let learners = {};
-    submissions.forEach(SubmissionData => {
+function getLearnersData(ag, submissions) { //get learners necessary data
+    let learners = {}; //create a new learners object 
+    submissions.forEach(SubmissionData => { //looping through LearnerSubmissions
         let learnerId = SubmissionData.learner_id;
-        if (!learners[learnerId]) {
-            learners[learnerId] = {
+        if (!learners[learnerId]) { //checking if the learner id is new 
+            learners[learnerId] = { //creating a new property 
                 id: learnerId,
-                assignments: {}
+                assignments: {} //creating empty assignments object
             };
         }
-            let assignmentId = SubmissionData.assignment_id;
-            for ( let i=0; i < ag.assignments.length; i++)
-            {
-                if ( assignmentId == ag.assignments[i].id)
-                {
-                    learners [learnerId].assignments[assignmentId] = {
-                        points_possible: ag.assignments[i].points_possible,
-                        due_at: ag.assignments[i].due_at,
-                        score: SubmissionData.submission.score,
-                        submitted_at: SubmissionData.submission.submitted_at
-                    }
+        let assignmentId = SubmissionData.assignment_id;
+        for (let i = 0; i < ag.assignments.length; i++) //looping through assignment group to check for every assignment present in LearnerSubmissions, 
+        // we get the learners full data needed for further manipulation
+        {
+            if (assignmentId == ag.assignments[i].id) { // checking if the assignment ids are same
+                learners[learnerId].assignments[assignmentId] = {
+                    points_possible: ag.assignments[i].points_possible,
+                    due_at: ag.assignments[i].due_at,
+                    score: SubmissionData.submission.score,
+                    submitted_at: SubmissionData.submission.submitted_at
                 }
             }
-        });
-        return learners;
-    }
+        }
+    });
+    return learners;
+}
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
