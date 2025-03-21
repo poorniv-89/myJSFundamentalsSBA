@@ -81,15 +81,9 @@ function getLearnerData(course, ag, submissions) {
     try {
         if (isAssignmentInCourse) {
             console.log("Assignment group belongs to this course!")
-            console.log(getLeranersData(ag, submissions));
-
-            console.log(checkDueSubmittedDate(ag,submissions));
-            
-
-
-
-
-
+            let learners = getLearnersData(ag, submissions);
+            console.log(JSON.stringify(learners,0, 2));
+            // console.log(checkDueSubmittedDate(ag, submissions), learners);
 
         }
         else
@@ -99,33 +93,38 @@ function getLearnerData(course, ag, submissions) {
         let errMessage = error.message;
         return errMessage;
     }
- 
+
 }
 
 function checkAgInCourse(course, ag) {
     return course.id == ag.course_id
 }
-function getLeranersData(ag, submissions)
-{
-    let tempId = 0;
-    let assignmentsList = {};
-    for (let i=0; i< submissions.length;i++)
-    {
-        let learnerId = submissions[i].learner_id;
-        if (!assignmentsList[learnerId])
-        {
-          assignmentsList[learnerId] = [];
-          assignmentsList[learnerId].push(submissions[i].assignment_id);
-            // let assignmentDueDate = getAssignmentDueDetails(assignmentsList);      
+function getLearnersData(ag, submissions) {
+    let learners = {};
+    submissions.forEach(SubmissionData => {
+        let learnerId = SubmissionData.learner_id;
+        if (!learners[learnerId]) {
+            learners[learnerId] = {
+                id: learnerId,
+                assignments: {}
+            };
         }
-        else
-        {
-            assignmentsList[learnerId].push(submissions[i].assignment_id);
-        }
+            let assignmentId = SubmissionData.assignment_id;
+            for ( let i=0; i < ag.assignments.length; i++)
+            {
+                if ( assignmentId == ag.assignments[i].id)
+                {
+                    learners [learnerId].assignments[assignmentId] = {
+                        points_possible: ag.assignments[i].points_possible,
+                        due_at: ag.assignments[i].due_at,
+                        score: SubmissionData.submission.score,
+                        submitted_at: SubmissionData.submission.submitted_at
+                    }
+                }
+            }
+        });
+        return learners;
     }
-    return assignmentsList;
-
-}
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
