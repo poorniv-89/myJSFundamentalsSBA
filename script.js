@@ -81,10 +81,9 @@ function getLearnerData(course, ag, submissions) {
     try {
         if (isAssignmentInCourse) {
             console.log("Assignment group belongs to this course!")
-            let learners = getLearnersData(ag, submissions);
+            let learners = getLearnersData(ag, submissions)
             console.log(JSON.stringify(learners, 0, 2));
-            // console.log(checkDueSubmittedDate(ag, submissions), learners);
-
+            checkDueSubmitted(learners);
         }
         else
             throw new Error("Assignment group doesn't belong to this course!!!");
@@ -93,28 +92,36 @@ function getLearnerData(course, ag, submissions) {
         let errMessage = error.message;
         return errMessage;
     }
-
 }
 
 function checkAgInCourse(course, ag) { //Checks if the assignment group belongs to the course
     return course.id == ag.course_id
 }
 function getLearnersData(ag, submissions) { //get learners necessary data
-    let learners = {}; //create a new learners object 
+    let learners = []; //create a new learners object 
     submissions.forEach(SubmissionData => { //looping through LearnerSubmissions
         let learnerId = SubmissionData.learner_id;
-        if (!learners[learnerId]) { //checking if the learner id is new 
-            learners[learnerId] = { //creating a new property 
-                id: learnerId,
-                assignments: {} //creating empty assignments object
-            };
+        let learner = null;
+        for (let i = 0; i < learners.length; i++) {
+            if (learners[i].learnerId == learnerId) {
+                learner = learners[i];
+                break;
+            }
         }
+        if (!learner) {
+            learner = {
+                learnerId: learnerId,
+                assignments: {}
+            }
+            learners.push(learner);
+        }
+
         let assignmentId = SubmissionData.assignment_id;
         for (let i = 0; i < ag.assignments.length; i++) //looping through assignment group to check for every assignment present in LearnerSubmissions, 
         // we get the learners full data needed for further manipulation
         {
             if (assignmentId == ag.assignments[i].id) { // checking if the assignment ids are same
-                learners[learnerId].assignments[assignmentId] = {
+                learner.assignments[assignmentId] = {
                     points_possible: ag.assignments[i].points_possible,
                     due_at: ag.assignments[i].due_at,
                     score: SubmissionData.submission.score,
@@ -126,6 +133,24 @@ function getLearnersData(ag, submissions) { //get learners necessary data
     return learners;
 }
 
+function checkDueSubmitted(array) {
+    let dueAt = "";
+    let submittedAt = "";
+    for (let i = 0; i < array.length; i++) {
+        for (let assignmentId in array[i].assignments) {
+            let assignment = array[i].assignments[assignmentId];
+            dueAt = Date.parse(assignment.due_at);
+            submittedAt = Date.parse(assignment.submitted_at);
+            if (submittedAt <= dueAt) {
+                console.log("Submitted before due date");
+            }
+            else
+                console.log("Submitted after due date");
+        }
+
+    }
+}
+
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
-console.log(result);
+// console.log(result);
