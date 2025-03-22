@@ -150,8 +150,10 @@ function checkDueSubmitted(array) {
     let dueAt = "";
     let submittedAt = "";
     let isSubmittedBefore = false;
-    let assignmentScore = 0;
     for (let i = 0; i < array.length; i++) {
+        let weightedScore = 0;
+        let assignmentCount = 0;
+        let assignmentScore = 0;
         for (let assignmentId in array[i].assignments) {
             let assignment = array[i].assignments[assignmentId];
             dueAt = Date.parse(assignment.due_at);
@@ -161,10 +163,14 @@ function checkDueSubmitted(array) {
                     isSubmittedBefore = true;
                 }
                 assignmentScore = calculateTotalPoints(isSubmittedBefore, assignmentId, array[i]);
+                isSubmittedBefore = false;
+                assignmentCount++;
+                weightedScore += assignmentScore;
                 console.log(assignmentScore);
             }
         }
-
+        weightedScore = weightedScore / assignmentCount;
+        console.log(`Weighted score of ${array[i].learnerId} is ${weightedScore}`);
     }
 }
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
