@@ -131,20 +131,17 @@ function getLearnersData(ag, submissions) { //get learners necessary data
     });
     return learners;
 }
-function calculateTotalPoints(isSubmittedBefore, assignmentId, learners)
-{
+function calculateTotalPoints(isSubmittedBefore, assignmentId, learners) {
     let assignmentScore = 0;
     let pointsPossible = learners.assignments[assignmentId].points_possible;
     let score = learners.assignments[assignmentId].score;
-    if (isSubmittedBefore == true)
-    {
-         assignmentScore = score/pointsPossible;
-        return assignmentScore; 
+    if (isSubmittedBefore == true) {
+        assignmentScore = score / pointsPossible;
+        return assignmentScore;
     }
-    else
-    {
-         assignmentScore = score/(pointsPossible - (pointsPossible*0.1));
-        return assignmentScore; 
+    else {
+        assignmentScore = ((score / pointsPossible) - 0.1);
+        return assignmentScore;
     }
 }
 
@@ -154,25 +151,21 @@ function checkDueSubmitted(array) {
     let submittedAt = "";
     let isSubmittedBefore = false;
     let assignmentScore = 0;
-    console.log("Inside checkDueSubmitted");
     for (let i = 0; i < array.length; i++) {
         for (let assignmentId in array[i].assignments) {
             let assignment = array[i].assignments[assignmentId];
             dueAt = Date.parse(assignment.due_at);
             submittedAt = Date.parse(assignment.submitted_at);
-            if (submittedAt <= dueAt) {
-                isSubmittedBefore = true;
-                assignmentScore = calculateTotalPoints(isSubmittedBefore,assignmentId,array[i]);
+            if (dueAt < Date.now()) {
+                if (submittedAt <= dueAt) {
+                    isSubmittedBefore = true;
+                }
+                assignmentScore = calculateTotalPoints(isSubmittedBefore, assignmentId, array[i]);
                 console.log(assignmentScore);
-            }
-            else{
-             assignmentScore = calculateTotalPoints(isSubmittedBefore,assignmentId,array[i]);
-            console.log(assignmentScore);
             }
         }
 
     }
 }
-
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 //console.log(result);
