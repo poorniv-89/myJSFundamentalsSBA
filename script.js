@@ -145,17 +145,17 @@ function calculateTotalPoints(isSubmittedBefore, assignmentId, learners) {
     }
 }
 
-
 function checkDueSubmitted(array) {
     let learnersFullData = [];
     let dueAt = "";
     let submittedAt = "";
 
     for (let i = 0; i < array.length; i++) {
-        let weightedScore = 0;
-        let assignmentCount = 0;
         let assignmentScore = 0;
         let isSubmittedBefore = false;
+        let  finalWeightedScore;
+        let totalScore = 0;
+        let totalPoints = 0;
         learnersFullData[i] = { id: array[i].learnerId, avg: null}
         for (let assignmentId in array[i].assignments) {
             console.log(assignmentId);
@@ -165,22 +165,22 @@ function checkDueSubmitted(array) {
             if (dueAt < Date.now()) {
                 if (submittedAt <= dueAt) {
                     isSubmittedBefore = true;
+                    totalScore += assignment.score;
+                }
+                else{
+                    totalScore += assignment.score - (0.1*assignment.points_possible);
                 }
                 assignmentScore = calculateTotalPoints(isSubmittedBefore, assignmentId, array[i]);
-                learnersFullData[i][assignmentId] = assignmentScore;
+                totalPoints +=assignment.points_possible;
+                learnersFullData[i][parseInt(assignmentId)] = assignmentScore;
                 isSubmittedBefore = false;
-                assignmentCount++;
-                weightedScore += assignmentScore;
+                   
             }
         }
-        weightedScore = weightedScore / assignmentCount;
-        learnersFullData[i].avg = weightedScore;
-
-        
+        finalWeightedScore = totalScore/totalPoints;
+        learnersFullData[i].avg = finalWeightedScore;
     }
-    //console.log(`Weighted score of ${array[i].learnerId} is ${weightedScore}`);
     return learnersFullData;
 }
-
-result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 console.log(result);
