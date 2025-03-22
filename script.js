@@ -83,7 +83,7 @@ function getLearnerData(course, ag, submissions) {
             console.log("Assignment group belongs to this course!")
             let learners = getLearnersData(ag, submissions)
             console.log(JSON.stringify(learners, 0, 2));
-            checkDueSubmitted(learners);
+            return checkDueSubmitted(learners);
         }
         else
             throw new Error("Assignment group doesn't belong to this course!!!");
@@ -147,14 +147,18 @@ function calculateTotalPoints(isSubmittedBefore, assignmentId, learners) {
 
 
 function checkDueSubmitted(array) {
+    let learnersFullData = [];
     let dueAt = "";
     let submittedAt = "";
-    let isSubmittedBefore = false;
+
     for (let i = 0; i < array.length; i++) {
         let weightedScore = 0;
         let assignmentCount = 0;
         let assignmentScore = 0;
+        let isSubmittedBefore = false;
+        learnersFullData[i] = { id: array[i].learnerId, avg: null}
         for (let assignmentId in array[i].assignments) {
+            console.log(assignmentId);
             let assignment = array[i].assignments[assignmentId];
             dueAt = Date.parse(assignment.due_at);
             submittedAt = Date.parse(assignment.submitted_at);
@@ -163,15 +167,20 @@ function checkDueSubmitted(array) {
                     isSubmittedBefore = true;
                 }
                 assignmentScore = calculateTotalPoints(isSubmittedBefore, assignmentId, array[i]);
+                learnersFullData[i][assignmentId] = assignmentScore;
                 isSubmittedBefore = false;
                 assignmentCount++;
                 weightedScore += assignmentScore;
-                console.log(assignmentScore);
             }
         }
         weightedScore = weightedScore / assignmentCount;
-        console.log(`Weighted score of ${array[i].learnerId} is ${weightedScore}`);
+        learnersFullData[i].avg = weightedScore;
+
+        
     }
+    //console.log(`Weighted score of ${array[i].learnerId} is ${weightedScore}`);
+    return learnersFullData;
 }
-const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
-//console.log(result);
+
+result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
+console.log(result);
