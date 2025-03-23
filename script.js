@@ -82,7 +82,7 @@ function getLearnerData(course, ag, submissions) {
         if (isAssignmentInCourse) {
             console.log("Assignment group belongs to this course!");
             let learners = getLearnersData(ag, submissions);
-            console.log(JSON.stringify(learners, 0, 2));
+            // console.log(JSON.stringify(learners, 0, 2));
             return checkDueSubmitted(learners);
         }
         else
