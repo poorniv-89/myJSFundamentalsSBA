@@ -80,8 +80,8 @@ function getLearnerData(course, ag, submissions) {
     let isAssignmentInCourse = checkAgInCourse(course, ag); // to check if the assignment group is in course
     try {
         if (isAssignmentInCourse) {
-            console.log("Assignment group belongs to this course!")
-            let learners = getLearnersData(ag, submissions)
+            console.log("Assignment group belongs to this course!");
+            let learners = getLearnersData(ag, submissions);
             console.log(JSON.stringify(learners, 0, 2));
             return checkDueSubmitted(learners);
         }
@@ -93,7 +93,6 @@ function getLearnerData(course, ag, submissions) {
         return errMessage;
     }
 }
-
 function checkAgInCourse(course, ag) { //Checks if the assignment group belongs to the course
     return course.id == ag.course_id
 }
@@ -135,50 +134,56 @@ function calculateTotalPoints(isSubmittedBefore, assignmentId, learners) {
     let assignmentScore = 0;
     let pointsPossible = learners.assignments[assignmentId].points_possible;
     let score = learners.assignments[assignmentId].score;
-    if (isSubmittedBefore == true) {
-        assignmentScore = score / pointsPossible;
-        return assignmentScore;
+    try { 
+        if (pointsPossible > 0) { //checking if points_possible is greater than 0
+            if (isSubmittedBefore == true) {
+                assignmentScore = score / pointsPossible;
+                return parseFloat(assignmentScore.toFixed(3));
+            }
+            else {
+                assignmentScore = ((score / pointsPossible) - 0.1);
+                return parseFloat(assignmentScore.toFixed(3));
+            }
+        }
+        else
+            throw new Error("Points Possible value is invalid!!!"); //throwing  error if points possible is less than 0
     }
-    else {
-        assignmentScore = ((score / pointsPossible) - 0.1);
-        return assignmentScore;
+    catch (error) {
+        let errMessage = error.message;
+        return errMessage; 
     }
 }
-
-function checkDueSubmitted(array) {
-    let learnersFullData = [];
+function checkDueSubmitted(array) { //to check the assignment due ans submitted date and calculate scores accordingly
+    let learnersFullData = []; //creating an array to add all the learner data
     let dueAt = "";
     let submittedAt = "";
-
-    for (let i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) { //looping through all ther learners
         let assignmentScore = 0;
         let isSubmittedBefore = false;
-        let  finalWeightedScore;
+        let finalWeightedScore;
         let totalScore = 0;
         let totalPoints = 0;
-        learnersFullData[i] = { id: array[i].learnerId, avg: null}
+        learnersFullData[i] = { id: array[i].learnerId, avg: null }
         for (let assignmentId in array[i].assignments) {
-            console.log(assignmentId);
             let assignment = array[i].assignments[assignmentId];
             dueAt = Date.parse(assignment.due_at);
             submittedAt = Date.parse(assignment.submitted_at);
             if (dueAt < Date.now()) {
                 if (submittedAt <= dueAt) {
                     isSubmittedBefore = true;
-                    totalScore += assignment.score;
+                    totalScore += assignment.score; //calculating the total score
                 }
-                else{
-                    totalScore += assignment.score - (0.1*assignment.points_possible);
+                else {
+                    totalScore += assignment.score - (0.1 * assignment.points_possible);
                 }
                 assignmentScore = calculateTotalPoints(isSubmittedBefore, assignmentId, array[i]);
-                totalPoints +=assignment.points_possible;
-                learnersFullData[i][parseInt(assignmentId)] = assignmentScore;
+                totalPoints += assignment.points_possible;
+                learnersFullData[i][assignmentId] = assignmentScore;
                 isSubmittedBefore = false;
-                   
             }
         }
-        finalWeightedScore = totalScore/totalPoints;
-        learnersFullData[i].avg = finalWeightedScore;
+        finalWeightedScore = totalScore / totalPoints;
+        learnersFullData[i].avg = finalWeightedScore; //adding avg to the learners array 
     }
     return learnersFullData;
 }
