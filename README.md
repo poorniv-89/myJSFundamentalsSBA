@@ -12,4 +12,4 @@ and the final average for each student is weighted based on the total points pos
   Could have made the code more DRY. Could have added more functional/non functional requirements like checking for wrong data.
 
 **What could you have done differently during the planning stages of your project to make the execution easier?**
-  Could have tried to understand the requirements before starting to code.
+  Could have tried to understand the requirements thoroughly before starting to code.
